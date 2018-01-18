@@ -18,3 +18,10 @@
 
 1. 데이터셋을 더 정교하게 만들어야 함
 2. 실제 용지에 색칠해서 데이터셋을 새로 만들어 보자
+
+* 사용 방법
+
+git clone https://github.com/kdh812/bcode-algorithm-test
+cd bcode-algorithm-test
+npm install
+node index.js
