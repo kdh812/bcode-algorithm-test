@@ -63,6 +63,7 @@ function coreAlgorithm(data) {
 
 var cnt = 0
 var total = 0
+var th = 14
 
 readdir('./images')
     .then(function(files) {
@@ -73,32 +74,35 @@ readdir('./images')
 
         files.forEach(file => {
 
+            // 318 x 424
             var imageProcessing = function() {
                 return new Promise((resolve, reject) => {
+                    // Should check the extract part for the future
+                    sharp("./images/"+file)
+                    .extract({ left: 236, top: 343, width: 42, height: 42 })
+                    .resize(150, 150)
+                    .toFile('./cropped/output_'+file, (err, info) => {} );
+
                     sharp("./images/" + file)
-                        .background({ r: 0, g: 0, b: 0, alpha: 0 })
-                        //.resize(150, 150)
-                        .resize(250, 250)
-                        .extract({ left: 50, top: 50, width: 150, height: 150 })
-                        .embed()
-                        .raw()
-                        .toBuffer((err, data, info) => {
-                            ans = file.substring(0, 9)
-                            ret = coreAlgorithm(data)
+                    .background({ r: 0, g: 0, b: 0, alpha: 0 })
+                    .extract({ left: 236, top: 343, width: 42, height: 42 })
+                    .resize(150, 150)
+                    .resize(150+th*2, 150+th*2)
+                    .extract({ left: th, top: th, width: 150, height: 150 })
+                    .embed()
+                    .raw()
+                    .toBuffer((err, data, info) => {
+                        ans = file.substring(0, 9)
+                        ret = coreAlgorithm(data)
 
-                            if (ans === ret) {
-                                cnt++
-                                console.log(ret + ' => OK! ' + file)
-                            } else {
-                                console.log(ret + ' =>     ' + file)
-                            }
-                            resolve()
-                        })
-
-                    /*sharp("./images/"+file)
-                    .resize(190, 190)
-                    .extract({ left: 20, top: 20, width: 150, height: 150 })
-                    .toFile('output.png', (err, info) => {} );*/
+                        if (ans === ret) {
+                            cnt++
+                            console.log(ret + ' => OK! ' + file)
+                        } else {
+                            console.log(ret + ' =>     ' + file)
+                        }
+                        resolve()
+                    })
                 })
             }
 
