@@ -1,6 +1,23 @@
 var readdir = require('fs-readdir-promise');
 var sharp = require('sharp');
 
+var cnt = 0
+var total = 0
+var th = 14
+var cir = 19
+
+function getDifference(a, b)
+{
+    var result = 0;
+
+    for(var i = 0;i<a.length;i++){
+        if(a[i] != b[i]){
+        result++
+      }
+    }
+    return result;
+}
+
 function coreAlgorithm(data) {
     var sum_array = [
         [0, 0, 0],
@@ -17,23 +34,35 @@ function coreAlgorithm(data) {
         // blue
         data[i + 2] = brightness;
 
-        if ((i / 4) % 150 < 50) {
+        var x_ori = Math.floor((i / 4) / 150)
+        var y_ori = (i / 4) % 150
+
+        if (y_ori < 50) {
             var y = 0
-        } else if ((i / 4) % 150 < 100) {
+        } else if (y_ori < 100) {
             var y = 1
+            y_ori -= 50
         } else {
             var y = 2
+            y_ori -= 100
         }
 
-        if ((i / 4) / 150 < 50) {
+        if (x_ori < 50) {
             var x = 0
-        } else if ((i / 4) / 150 < 100) {
+        } else if (x_ori < 100) {
             var x = 1
+            x_ori -= 50
         } else {
             var x = 2
+            x_ori -= 100
         }
 
-        sum_array[x][y] = sum_array[x][y] + brightness
+        var dist = Math.hypot(x_ori+0.5-25, y_ori+0.5-25)
+
+        // Inner Circle
+        if(dist <= cir){
+            sum_array[x][y] = sum_array[x][y] + brightness    
+        }
     }
 
     var new_array = []
@@ -61,14 +90,10 @@ function coreAlgorithm(data) {
     return s
 }
 
-var cnt = 0
-var total = 0
-var th = 14
-
 readdir('./images')
     .then(function(files) {
         total = files.length
-        console.log('Total images: ' + total)
+        console.log('Total imag가s: ' + total)
 
         var funcs = []
 
@@ -78,10 +103,12 @@ readdir('./images')
             var imageProcessing = function() {
                 return new Promise((resolve, reject) => {
                     // Should check the extract part for the future
-                    sharp("./images/"+file)
+
+                    /*sharp("./images/"+file)
                     .extract({ left: 236, top: 343, width: 42, height: 42 })
                     .resize(150, 150)
                     .toFile('./cropped/output_'+file, (err, info) => {} );
+                    */
 
                     sharp("./images/" + file)
                     .background({ r: 0, g: 0, b: 0, alpha: 0 })
@@ -99,7 +126,7 @@ readdir('./images')
                             cnt++
                             console.log(ret + ' => OK! ' + file)
                         } else {
-                            console.log(ret + ' =>     ' + file)
+                            console.log(ret + ' =>     ' + file + ' ' + getDifference(ans,ret))
                         }
                         resolve()
                     })
